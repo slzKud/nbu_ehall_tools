@@ -43,7 +43,7 @@ Attribute mb_callback.VB_VarHelpID = -1
 Private mb_api As New MiniblinkAPI
 Private Declare Function SetProcessDpiAwarenessContext Lib "user32" (dpi As Long) As Boolean
 Private mb As Long
-
+Private flag As Boolean
 Private Sub Command1_Click()
 End
 End Sub
@@ -57,13 +57,13 @@ Private Sub Form_Activate()
     
     mb = mb_api.wkeCreateWebWindow(2, Me.hWnd, 0, 0, Me.ScaleWidth, Me.ScaleHeight)
     mb_api.wkeShowWindow mb, True
-    
+    mb_api.wkeOnNavigation mb, mb_callback.wkeNavigationCallback, 0
+    mb_api.wkeOnURLChanged mb, mb_callback.wkeURLChangedCallback, 0
+    mb_api.wkeOnDocumentReady2 mb, mb_callback.wkeDocumentReady2Callback, 0
     mb_api.wkeOnLoadUrlBegin mb, mb_callback.wkeLoadUrlBeginCallback, 0                  'url加载事件绑定
     mb_api.wkeOnCreateView mb, mb_callback.wkeCreateViewCallback, 0                      '创建新窗口事件绑定
-    mb_api.wkeOnDownload mb, mb_callback.wkeDownloadCallback, 0 '下载事件绑定
     mb_api.wkeSetUserAgent mb, "Mozilla/5.0 (iPhone; CPU iPhone OS 10_3 like Mac OS X) AppleWebKit/602.1.50 (KHTML, like Gecko) CriOS/56.0.2924.75 Mobile/14E5239e Safari/602.1"
-    'mb_api.wkeSetCookieJarFullPath mb, App.Path & "\cookies.dat"
-    mb_api.wkeLoadURL mb, "https://uis.nbu.edu.cn/authserver/login?service=http%3A%2F%2Fehall.nbu.edu.cn%2Flogin%3Fservice%3Dhttps%3A%2F%2Fehall.nbu.edu.cn%2Fnew%2Findex.html%3Fbrowser%3Dno"
+    mb_api.wkeLoadURL mb, "https://uis.nbu.edu.cn/authserver/login?service=http%3A%2F%2Fehall.nbu.edu.cn%2Fjwapp%2Fsys%2Fwdkb%2F*default%2Findex.do%3Ft_s%3D1600355558352%26amp_sec_version_%3D1%26gid_%3DTnJwRklMUThXMkR5UW80aFJBZXhjZWhMZGhlN09HR0FaRnpsZTdyNGZuS1NPTGQxeW9oaGFjWkdwbytISzRybUovWHJ4WVhnRDJ1UVVHQkd2RmNVd1E9PQ%26EMAP_LANG%3Dzh%26THEME%3Dindigo#/xskcb"
     'mb_api.wkeLoadHTML mb, "<h1>test</h1>"
 End Sub
 
@@ -74,8 +74,12 @@ Private Sub Form_Load()
 End Sub
 
 
+Private Sub mb_callback_wkeDocumentReady2Callback(ByVal webView As Long, ByVal param As Long, ByVal frameId As Long)
+If flag Then T2_Click: End
+End Sub
+
 Private Sub mb_callback_wkeDocumentReadyCallback(ByVal webView As Long, ByVal param As Long)
-Me.Show
+MsgBox "1"
 End Sub
 
 Private Sub mb_callback_wkeDownloadCallback(ByVal webView As Long, ByVal param As Long, ByVal url As String)
@@ -91,13 +95,14 @@ End Sub
 
 Private Sub mb_callback_wkeLoadUrlBeginCallback(ByVal webView As Long, ByVal param As Long, ByVal url As String, ByVal job As Long)
     Debug.Print url
-    If InStr(url, "https://uis.nbu.edu.cn/authserver") = 0 Then T2_Click: End
+    If InStr(url, "https://uis.nbu.edu.cn/authserver") = 0 Then flag = True
     'If InStr(url, "http://ehall.nbu.edu.cn/login?service=https://ehall.nbu.edu.cn/new/index.html") > 0 Then T2_Click: End
 End Sub
 
 Private Sub mb_callback_wkeNavigationCallback(ByVal webView As Long, ByVal param As Long, ByVal navigationType As MiniblinkSDK_200.wkeNavigationType, ByVal url As String)
  Debug.Print "触发了wkeCreateViewCallback"
     mb_callback.Return_wkeCreateViewCallback = webView      '使用原webview加载
+    
 End Sub
 
 Private Sub T1_Click()
@@ -106,10 +111,15 @@ End Sub
 
 Private Sub T2_Click()
 Dim c As String
-c = mb_api.wkeGetCookieW(mb)
-    If c <> "" And c <> UEFLoadTextFile(App.Path & "\uis_nbu_cookies.txt", uef_utf8NB) Then
-        UEFSaveTextFile App.Path & "\uis_nbu_cookies.txt", mb_api.wkeGetCookieW(mb), False, uef_utf8NB, uef_utf8NB
+While c = ""
+c = mb_api.wkeGetCookie(mb)
+c = Replace(c, "JSESSIONID", "JSESSIONID_auth")
+If Right(c, 1) = Chr(0) Then c = Left(c, Len(c) - 1)
+    If c <> "" And c <> UEFLoadTextFile(App.Path & "\uis_nbu_cookies.txt", UEF_UTF8) Then
+        UEFSaveTextFile App.Path & "\uis_nbu_cookies.txt", c, False, uef_utf8NB, uef_utf8NB
     End If
+DoEvents
+Wend
 End Sub
 
 Private Function ifWin101607() As Boolean
