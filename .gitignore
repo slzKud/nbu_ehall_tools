@@ -108,4 +108,5 @@ MiniblinkSDK_200.dll
 uis_login.exe
 cookies.dat
 *.exe
-`uis_nbu_cookies.txt
+uis_nbu_cookies.txt
+*.ics
