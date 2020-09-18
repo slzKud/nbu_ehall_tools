@@ -1,3 +1,4 @@
+#class_ics_gen
 #学期第一周
 XQDYZ={'2020-2021-1':'2020-09-14'}
 #本部下课时间
@@ -5,3 +6,7 @@ SKSJ_BB=['08:00','08:50','10:00','10:50','13:00','13:50','15:00','15:50','18:30'
 XKSJ_BB=['08:45','09:35','10:45','11:35','13:45','14:35','15:45','16:35','19:15','20:05','20:55','22:00']
 #日期转中文
 XQJ_CN=['星期一','星期二','星期三','星期四','星期五','星期六','星期日']
+#wisedu_unifined_login
+#https://github.com/ZimoLoveShuang/wisedu-unified-login-api
+#登陆服务器地址
+unifiedloginapi="http://www.zimo.wiki:8080/wisedu-unified-login-api-v1.0/api/login?login_url=https%3A%2F%2Fuis.nbu.edu.cn%2Fauthserver%2Flogin&password=$password$&username=$username$"

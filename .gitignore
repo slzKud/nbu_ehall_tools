@@ -110,3 +110,5 @@ cookies.dat
 *.exe
 uis_nbu_cookies.txt
 *.ics
+build
+dist
