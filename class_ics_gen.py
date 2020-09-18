@@ -54,10 +54,39 @@ xndm=xna[0]+"-"+xna[1]
 xqdm=xna[2]
 rq=time.strftime('%Y-%m-%d')
 print('当前学期：'+xq['datas']['dqxnxq']['rows'][0]['MC'])
+print('正在获取基本信息...')
 p=session.post("https://ehall.nbu.edu.cn/jwapp/sys/wdkb/modules/xskcb/xsdkkc.do",data="XNXQDM="+xqn+"&SKZC=1&*order=-SQSJ",headers=headers,allow_redirects=True)
 p=session.post("https://ehall.nbu.edu.cn/jwapp/sys/wdkb/modules/jshkcb/dqzc.do",data="XN="+xndm+"&XQ="+xqdm+"&RQ="+rq,headers=headers,allow_redirects=True)
 p=session.post("https://ehall.nbu.edu.cn/jwapp/sys/wdkb/modules/jshkcb/cxjcs.do",data="XN="+xndm+"&XQ="+xqdm,headers=headers,allow_redirects=True)
 p=session.post("https://ehall.nbu.edu.cn/jwapp/sys/wdkb/modules/xskcb/xswpkc.do",data="XNXQDM="+xqn+"&SKZC=1",headers=headers,allow_redirects=True)
+p=session.post("https://ehall.nbu.edu.cn/jwapp/sys/wdkb/modules/xskcb/cxxsjbxx.do",data="",headers=headers,allow_redirects=True)
+xsjson=p.text
+xs=json.loads(xsjson)
+if xs['code']=='0':
+    print('获取基本信息成功!')
+else:
+    print('基本信息获取失败')
+    exit()
+if xs['datas']['cxxsjbxx']['totalSize']==0:
+    print('基本信息获取失败:'+xs['datas']['cxxsjbxx']['extParams']['msg'])
+    exit()
+xh=xs['datas']['cxxsjbxx']['rows'][0]['XH']
+xsn=xs['datas']['cxxsjbxx']['rows'][0]['XM']
+xyn=xs['datas']['cxxsjbxx']['rows'][0]['YXDM_DISPLAY']
+zyn=xs['datas']['cxxsjbxx']['rows'][0]['BJMC']
+print("学号："+xh)
+print("姓名："+xsn)
+print("学院："+xyn)
+print("专业："+zyn)
+if xyn in config.MS_XY:
+    #说明是梅山校区
+    print("校区：梅山")
+    config.SKSJ_BB=config.SKSJ_BB_MS
+    config.XKSJ_BB=config.XKSJ_BB_MS
+else:
+    #否则本部
+    print("校区：本部/北区/植物园")
+print("正在获取当前课程信息....")
 p=session.post("https://ehall.nbu.edu.cn/jwapp/sys/wdkb/modules/xskcb/xskcb.do",data="XNXQDM="+xqn+"&SKZC=1",headers=headers,allow_redirects=True)
 kcbjson=p.text
 kcb=json.loads(kcbjson)
@@ -109,8 +138,8 @@ for jtkcinfo in jtkcb:
         e.begin=local2utc(b1)
         e.end=local2utc(e1)
         c.events.add(e)
-fiobj=open(xqn+"课程.ics","w",encoding="utf-8-sig")
+fiobj=open(xsn+"_"+xh+"_"+xqn+"课程.ics","w",encoding="utf-8-sig")
 fiobj.write(str(c))
 fiobj.close()
-print('结果已经保存在：'+xqn+"课程.ics,处理完成")
+print('结果已经保存在：'+xsn+"_"+xh+"_"+xqn+"课程.ics,处理完成")
     #输出课程结束
