@@ -5,6 +5,9 @@ unifiedloginapi="http://www.zimo.wiki:8080/wisedu-unified-login-api-v1.0/api/log
 #新闻抓取深度
 page_deepth=3 #只抓取前三页内容
 page_size=15 #每页15个
+#抓取设置
+fj_flag=False #抓取附件设置 False代表不抓取
+content_flag=True #抓取新闻内容 False代表不抓取
 #储存设置
 db_file='news.db' #储存的数据库名
 #推送设置
