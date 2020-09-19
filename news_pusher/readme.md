@@ -21,5 +21,5 @@ content_flag=True #抓取新闻内容 False代表不抓取
 
 #储存设置
 
-db_file='news.db' #储存的数据库名</code>
+db_file='news.db' #储存的数据库名
 ```
