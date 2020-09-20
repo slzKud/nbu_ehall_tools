@@ -1,4 +1,4 @@
-import getpass,json,os
+import getpass,json,os,config
 import smtplib
 from email.mime.text import MIMEText
 from email.utils import formataddr
@@ -16,6 +16,8 @@ def get_the_smtp_send():
         fiobj.close()
         return e
     else:
+        if config.content_flag==True:
+            return False
         fiobj=open('config_smtp.json',"r")
         es=fiobj.read()
         fiobj.close()
@@ -23,10 +25,13 @@ def get_the_smtp_send():
         return e
 def push_through_email(i):
     i1=get_the_smtp_send()
+    if config.content_flag==False:
+        return False
     ret=True
     try:
+        print("正在发送邮件...")
         msg=MIMEText('填写邮件内容','plain','utf-8')
-        msg['From']=formataddr(["测试邮件",i1['username']])  # 括号里的对应发件人邮箱昵称、发件人邮箱账号
+        msg['From']=formataddr(["今日新闻",i1['username']])  # 括号里的对应发件人邮箱昵称、发件人邮箱账号
         p=",".join(i1['address'])
         msg['To']=p            # 括号里的对应收件人邮箱昵称、收件人邮箱账号
         msg['Subject']="{}".format(i['news_title'])                # 邮件的主题，也可以说是标题

@@ -42,10 +42,9 @@ def prase_newslist(newslist):
             i={"news_ID":news_ID,"news_title":news_title,"news_DATE":news_DATE,"news_LMID":news_LMID,"news_LMNAME":news_LMNAME,"news_FBBM":news_FBBM,"news_url":news_url,"news_FJ":json.dumps(news_content['fj']),"news_content":news_content['news_content']+b}
             db_connect.add_item(db,i)
             #后续推送代码
-            if config.content_flag==True:
-                if config.news_pusher_type=="email" and config.email_send_type=="smtp":
-                    print("正在使用邮件方式推送...")
-                    push.push_through_email(i)
+            if config.news_pusher_type=="email" and config.email_send_type=="smtp":
+                print("正在使用邮件方式推送...")
+                push.push_through_email(i)
         else:
             print("新闻已存在："+news_title)
                 
