@@ -1,5 +1,5 @@
 import getpass,json,os,config
-import smtplib
+import smtplib,requests
 from email.mime.text import MIMEText
 from email.utils import formataddr
 def get_the_smtp_send():
@@ -16,15 +16,34 @@ def get_the_smtp_send():
         fiobj.close()
         return e
     else:
-        if config.content_flag==True:
+        if config.content_flag==False:
             return False
         fiobj=open('config_smtp.json',"r")
         es=fiobj.read()
         fiobj.close()
         e=json.loads(es)
         return e
+def get_the_mailgun_send():
+    if not os.path.exists('config_mailgun.json'):
+        username=input("请输入发送的mailgun域名:")
+        password=getpass.getpass('请输入API_KEY：')
+        address=input('请输入推送的电子邮件地址,以逗号分隔：').split(',')
+        e={"username":username,"password":password,"address":address}
+        es=json.dumps(e)
+        fiobj=open('config_mailgun.json',"w")
+        fiobj.write(es)
+        fiobj.close()
+        return e
+    else:
+        if config.content_flag==False:
+            return False
+        fiobj=open('config_mailgun.json',"r")
+        es=fiobj.read()
+        fiobj.close()
+        e=json.loads(es)
+        return e
 def push_through_email(i):
-    i1=get_the_smtp_send()
+    i1=get_the_mailgun_send()
     if config.content_flag==False:
         return False
     ret=True
@@ -43,4 +62,16 @@ def push_through_email(i):
         ret=False
     return ret
 def push_through_mailgun(i):
-    pass
+    i1=get_the_mailgun_send()
+    if config.content_flag==False:
+        return False
+    print("正在发送邮件...")
+    A=requests.post(
+		"https://api.mailgun.net/v3/{}/messages".format(i1['username']),
+		auth=("api", i1['password']),
+		data={"from": "News Bot <mailgun@{}>".format(i1['username']),
+			"to": i1['address'],
+			"subject": i['news_title'],
+			"html": i['news_content'].encode('utf-8')})
+    print(A.text)
+	

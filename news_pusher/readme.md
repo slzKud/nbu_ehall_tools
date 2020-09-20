@@ -2,6 +2,10 @@
 这是一个用于抓取并储存宁大新闻网的新闻的工具，并可以选择方式进行推送
 
 **本工具尚未完成**
+## 支持的推送方式
+* 电子邮件（含SMTP发送和MailGun)
+* 手机短信（需要腾讯云API）
+* 自定义机器人
 ## 如何使用
 1. 安装依赖`request`，并修改`config.py`
 2. 运行脚本`news_pusher.py first`初始化数据,第一次使用会输入学号和密码用于登陆
@@ -31,5 +35,5 @@ news_pusher_type="email"  #email以电子邮件发送（每个新闻一个邮件
 
 #邮件发送类型
 
-email_send_type="smtp" #smtp:使用smtp发送邮件，大规模发送可能会被认为是SPAM而发送失败
+email_send_type="mailgun" #mailgun:使用mailgun发送邮件，大规模发送收费
 ```

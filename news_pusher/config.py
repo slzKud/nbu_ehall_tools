@@ -21,6 +21,6 @@ news_pusher_type="email"
 #邮件发送类型
 #smtp:使用smtp发送邮件，大规模发送可能会被认为是SPAM而发送失败
 #mailgun:使用mailgun发送邮件，大规模发送收费
-email_send_type="smtp"
+email_send_type="mailgun"
 #电报机器人设置（挖坑）
 #手机信息设置（挖坑）

@@ -1,5 +1,5 @@
 import requests,config,json,unifined_login,news_list_parse,sys,os
-if len(sys.argv)>=1:
+if len(sys.argv)>=2:
     if sys.argv[1]=="first" or not os.path.exists('config_user.json'):
         print('设置为初次同步模式')
         config.content_flag=False
