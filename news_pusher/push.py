@@ -66,12 +66,20 @@ def push_through_mailgun(i):
     if config.content_flag==False:
         return False
     print("正在发送邮件...")
+    f=[]
+    if config.fj_flag:
+        fj=json.loads(i['news_FJ'])
+        for fjchild in fj:
+            rs_name=fjchild['fjname']
+            filename="fj/"+rs_name
+            f.append(("attachment", (rs_name, open(filename,"rb").read())))
     A=requests.post(
 		"https://api.mailgun.net/v3/{}/messages".format(i1['username']),
 		auth=("api", i1['password']),
+        files=f,
 		data={"from": "News Bot <mailgun@{}>".format(i1['username']),
 			"to": i1['address'],
 			"subject": i['news_title'],
 			"html": i['news_content'].encode('utf-8')})
     print(A.text)
-	
+    return(A.text)

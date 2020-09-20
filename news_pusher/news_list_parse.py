@@ -26,6 +26,7 @@ def prase_newslist(newslist):
             #print(news_content)
             #检测文章ID是否存在
         if db_connect.find_item(db,news_ID)==0:
+            b=""
             print("新闻不存在："+news_title+",开始抓取内容")
             if int(r['CONMENT_TYPE'])==1:
                 news_content=prase_news(news_ID)
@@ -41,7 +42,11 @@ def prase_newslist(newslist):
                         rs_name=rs['fjname']
                         print("抓取附件："+rs_name+"")
                         download_file('fj/'+rs_name,rs_url)
-            b="<br><br>阅读新闻：<a href='{0}'>{1}</a>".format(news_url,news_title)
+            else:
+                for rs in news_content['fj']:
+                    rs_url="https://ehall.nbu.edu.cn/"+rs['fjurl']
+                    rs_name=rs['fjname']
+                    news_content['news_content']=news_content['news_content']+"<br>下载附件：<a href='{0}'>{1}</a>".format(rs_url,rs_name)
             i={"news_ID":news_ID,"news_title":news_title,"news_DATE":news_DATE,"news_LMID":news_LMID,"news_LMNAME":news_LMNAME,"news_FBBM":news_FBBM,"news_url":news_url,"news_FJ":json.dumps(news_content['fj']),"news_content":news_content['news_content']}
             db_connect.add_item(db,i)
             #后续推送代码
