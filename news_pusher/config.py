@@ -12,9 +12,15 @@ content_flag=True #抓取新闻内容 False代表不抓取
 db_file='news.db' #储存的数据库名
 #推送设置
 #command以命令行呈现
-#email以电子邮件发送（每个新闻一个右键）（暂不可用）
-#emaillist以电子邮件列表发送（一次新闻列表右键）（暂不可用）
+#email以电子邮件发送（每个新闻一个邮件）
+#emaillist以电子邮件列表发送（一次新闻列表邮件）（暂不可用）
 #tgbot以电报机器人信息发送（暂不可用）
-news_pusher_type="command" 
+#sms以腾讯云手机信息发送（暂不可用）
+news_pusher_type="email" 
 #电子邮件设置（挖坑）
+#邮件发送类型
+#smtp:使用smtp发送邮件，大规模发送可能会被认为是SPAM而发送失败
+#mailgun:使用mailgun发送邮件，大规模发送收费
+email_send_type="smtp"
 #电报机器人设置（挖坑）
+#手机信息设置（挖坑）

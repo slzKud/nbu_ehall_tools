@@ -1,4 +1,9 @@
-import requests,config,json,unifined_login,news_list_parse
+import requests,config,json,unifined_login,news_list_parse,sys,os
+if len(sys.argv)>=1:
+    if sys.argv[1]=="first" or not os.path.exists('config_user.json'):
+        print('设置为初次同步模式')
+        config.content_flag=False
+        config.fj_flag=False
 session=unifined_login.auto_login()
 #获取校内网的新闻（如教务处）
 for i in range(1,config.page_deepth+1):
