@@ -2,6 +2,8 @@ import getpass,json,os,config
 import smtplib,requests
 from email.mime.text import MIMEText
 from email.utils import formataddr
+from email.mime.multipart import MIMEMultipart
+from email.header import Header
 def get_the_smtp_send():
     if not os.path.exists('config_smtp.json'):
         username=input("请输入发送的电子邮件账户:")
@@ -43,23 +45,31 @@ def get_the_mailgun_send():
         e=json.loads(es)
         return e
 def push_through_email(i):
-    i1=get_the_mailgun_send()
+    i1=get_the_smtp_send()
     if config.content_flag==False:
         return False
     ret=True
-    try:
-        print("正在发送邮件...")
-        msg=MIMEText('填写邮件内容','plain','utf-8')
-        msg['From']=formataddr(["今日新闻",i1['username']])  # 括号里的对应发件人邮箱昵称、发件人邮箱账号
-        p=",".join(i1['address'])
-        msg['To']=p            # 括号里的对应收件人邮箱昵称、收件人邮箱账号
-        msg['Subject']="{}".format(i['news_title'])                # 邮件的主题，也可以说是标题
-        server=smtplib.SMTP_SSL(i1['server'], int(i1['server_port']))  # 发件人邮箱中的SMTP服务器，端口是25
-        server.login(i1['username'], i1['password'])  # 括号中对应的是发件人邮箱账号、邮箱密码
-        server.sendmail(i1['username'],i1['address'],i['news_content'].encode('utf-8'))  # 括号中对应的是发件人邮箱账号、收件人邮箱账号、发送邮件
-        server.quit()  # 关闭连接
-    except:
-        ret=False
+    print("正在发送邮件...")
+    msg=MIMEMultipart()
+
+    msg['From']=formataddr(["今日新闻",i1['username']])  # 括号里的对应发件人邮箱昵称、发件人邮箱账号
+    p=",".join(i1['address'])
+    msg['To']=p            # 括号里的对应收件人邮箱昵称、收件人邮箱账号
+    msg['Subject']="{}".format(i['news_title'])  
+    msg.attach(MIMEText(i['news_content'], 'html', 'utf-8'))              # 邮件的主题，也可以说是标题
+    if config.fj_flag:
+        fj=json.loads(i['news_FJ'])
+        for fjchild in fj:
+            rs_name=fjchild['fjname']
+            filename="fj/"+rs_name
+            att2 = MIMEText(open(filename, 'rb').read(), 'base64', 'utf-8')
+            att2["Content-Type"] = 'application/octet-stream'
+            att2.add_header("Content-Disposition", "attachment", filename=("gbk", "", "{}".format(rs_name)))
+            msg.attach(att2)
+    server=smtplib.SMTP_SSL(i1['server'], int(i1['server_port']))  # 发件人邮箱中的SMTP服务器，端口是25
+    server.login(i1['username'], i1['password'])  # 括号中对应的是发件人邮箱账号、邮箱密码
+    server.sendmail(i1['username'],i1['address'],msg.as_string())  # 括号中对应的是发件人邮箱账号、收件人邮箱账号、发送邮件
+    server.quit()  # 关闭连接
     return ret
 def push_through_mailgun(i):
     i1=get_the_mailgun_send()
