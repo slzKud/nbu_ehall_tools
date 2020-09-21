@@ -1,9 +1,17 @@
-import getpass,json,os,config
+import getpass,json,os,config,re
 import smtplib,requests
+from email.mime.image import MIMEImage
 from email.mime.text import MIMEText
 from email.utils import formataddr
 from email.mime.multipart import MIMEMultipart
 from email.header import Header
+def download_file(filename,url):
+    print('正在下载:'+url)
+    r = requests.get(url)
+    with open(filename, 'wb') as f:
+        f.write(r.content)
+        f.close()
+    print('下载完成:'+url)
 def get_the_smtp_send():
     if not os.path.exists('config_smtp.json'):
         username=input("请输入发送的电子邮件账户:")
@@ -44,19 +52,58 @@ def get_the_mailgun_send():
         fiobj.close()
         e=json.loads(es)
         return e
+def dopic_smtp(content):
+    msg=MIMEMultipart('alternative')
+    pic_url = re.findall('src="(.*?)"',content,re.S)
+    A=str(content)
+    for key in pic_url:
+        d=re.compile(r"http://ehall\.nbu\.edu\.cn/publicapp/sys/emapcomponent/file/getAttachmentFile/(.*)\.do")
+        pic_cid=d.sub(r'\1',key)
+        pic_name=pic_cid+".png"
+        print(key)
+        print(pic_name)
+        if not os.path.exists('fj'):
+            os.mkdir('fj')
+        download_file('fj/'+pic_name,key)
+        fp = open('fj/'+pic_name, 'rb')
+        msgImage = MIMEImage(fp.read())
+        fp.close()
+        msgImage.add_header('Content-ID', '{}'.format(pic_cid))
+        msg.attach(msgImage)
+        A=A.replace(key,"cid:{}".format(pic_cid))
+        print(A)
+    msg.attach(MIMEText(A, 'html', 'utf-8'))
+    return msg
+
+def dopic_mailgun(content):
+    pic_url = re.findall('src="(.*?)"',content,re.S)
+    A=str(content)
+    f=[]
+    for key in pic_url:
+        d=re.compile(r"http://ehall\.nbu\.edu\.cn/publicapp/sys/emapcomponent/file/getAttachmentFile/(.*)\.do")
+        pic_cid=d.sub(r'\1',key)
+        pic_name=pic_cid+".png"
+        print(key)
+        print(pic_name)
+        if not os.path.exists('fj'):
+            os.mkdir('fj')
+        download_file('fj/'+pic_name,key)
+        f.append(("inline", (pic_name, open('fj/'+pic_name,"rb").read())))
+        A=A.replace(key,"cid:{}".format(pic_name))
+        print(A)
+    return [A,f]
+
 def push_through_email(i):
     i1=get_the_smtp_send()
     if config.content_flag==False:
         return False
     ret=True
     print("正在发送邮件...")
-    msg=MIMEMultipart()
-
-    msg['From']=formataddr(["今日新闻",i1['username']])  # 括号里的对应发件人邮箱昵称、发件人邮箱账号
+    msg=dopic_smtp(i['news_content'])
+    msg['From']=formataddr(["News Bot",i1['username']])  # 括号里的对应发件人邮箱昵称、发件人邮箱账号
     p=",".join(i1['address'])
     msg['To']=p            # 括号里的对应收件人邮箱昵称、收件人邮箱账号
     msg['Subject']="{}".format(i['news_title'])  
-    msg.attach(MIMEText(i['news_content'], 'html', 'utf-8'))              # 邮件的主题，也可以说是标题
     if config.fj_flag:
         fj=json.loads(i['news_FJ'])
         for fjchild in fj:
@@ -76,7 +123,8 @@ def push_through_mailgun(i):
     if config.content_flag==False:
         return False
     print("正在发送邮件...")
-    f=[]
+    f1=dopic_mailgun(i['news_content'])
+    f=f1[1]
     if config.fj_flag:
         fj=json.loads(i['news_FJ'])
         for fjchild in fj:
@@ -90,6 +138,6 @@ def push_through_mailgun(i):
 		data={"from": "News Bot <mailgun@{}>".format(i1['username']),
 			"to": i1['address'],
 			"subject": i['news_title'],
-			"html": i['news_content'].encode('utf-8')})
+			"html": f1[0].encode('utf-8')})
     print(A.text)
     return(A.text)
