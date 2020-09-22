@@ -1,13 +1,18 @@
 # news_pusher
 这是一个用于抓取并储存宁大新闻网的新闻的工具，并可以选择方式进行推送
 
-**本工具尚未完成**
+**本工具尚未完成，还有后续更改的成分**
 ## 支持的推送方式
-* 电子邮件（含SMTP发送和MailGun)
+* 电子邮件 **（现已支持）**
+
+    支持发送新闻内容或整合过的新闻列表，支持**以SMTP发送**或**使用[MailGun](https://app.mailgun.com)服务**
+
+**以下尚未适配完成**
+
 * 手机短信（需要腾讯云API）
-* 自定义机器人
+* 自定义机器人（如钉钉/电报等）
 ## 如何使用
-1. 安装依赖`request`，并修改`config.py`
+1. 安装依赖`requests`，并修改`config.py`中关于推送服务的设置
 2. 运行脚本`news_pusher.py first`初始化数据,第一次使用会输入学号和密码用于登陆
 3. 随后正式运行脚本`news_pusher.py`开始扫描推送，可使用cron定时调用
 ## 配置文件默认配置
@@ -37,3 +42,5 @@ news_pusher_type="email"  #email以电子邮件发送（每个新闻一个邮件
 
 email_send_type="mailgun" #mailgun:使用mailgun发送邮件，大规模发送收费
 ```
+## 鸣谢
+* [wisedu-unified-login-api](https://github.com/ZimoLoveShuang/wisedu-unified-login-api)
